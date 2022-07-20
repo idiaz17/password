@@ -1,8 +1,9 @@
-import React from "react";
+import * as React from "react";
 import { Field, FieldAttributes, Form, Formik, useField } from "formik";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { z } from "zod";
+import FormData from "form-data";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import axios from "axios";
@@ -86,16 +87,16 @@ const PasswordChange: React.FC = ({}) => {
   });
 
   let url = `http://192.168.1.46/labtest/elite-api-mcnaughtans/v1/customers`;
-  let updateFormData = new FormData();
-  updateFormData.append("token", route.query.token);
-  updateFormData.append("id", route.query.id);
-  updateFormData.append("password", values.newPassword);
+  const form = new FormData();
+  form.append("token", `${route.query.token}`);
+  form.append("id", `${route.query.id}`);
+  form.append("password", values.newPassword);
   // updateFormData.append("password", values.newPassword);
 
   const changePasswordUser = () => {
     fetch(url, {
       method: "POST",
-      body: updateFormData,
+      body: form,
     })
       .then((data) => data.json())
       .then((res) => {
