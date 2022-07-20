@@ -57,6 +57,7 @@ interface PasswordChange {
 }
 
 const PasswordChange: React.FC = ({}) => {
+  const [passwordChanged, setPasswordChanged] = React.useState([]);
   const [values, setValues] = React.useState<State>({
     newPassword: "",
     confirmPassword: "",
@@ -88,6 +89,15 @@ const PasswordChange: React.FC = ({}) => {
     },
   });
 
+  React.useEffect(() => {
+    if (passwordChanged.data?.msg === "updated") {
+      route.push(`/changedPassword/${passwordChanged.data?.msg}`);
+    } else {
+      return;
+    }
+  }, [passwordChanged]);
+  console.log(passwordChanged.data?.msg);
+
   let url = `http://192.168.1.46/labtest/elite-api-mcnaughtans/v1/password.recovery.set`;
   let form = new FormData();
 
@@ -103,8 +113,7 @@ const PasswordChange: React.FC = ({}) => {
     })
       .then((data) => data.json())
       .then((res) => {
-        // updateForm.reset();
-        console.log(res);
+        setPasswordChanged(res);
       })
       .catch((err) => console.log(err));
   };
@@ -114,16 +123,6 @@ const PasswordChange: React.FC = ({}) => {
       <Header />
 
       <div className="h-full flex flex-col items-center justify-center overflow-y-hidden  mt-20">
-        {/* <Image
-        src={"/mcnaughtans.png"}
-        // width={300}
-        width={400}
-        height={100}
-        // layout="responsive"
-        // height={100}
-        className=""
-        // className="object-cover h-80"
-      /> */}
         <Formik
           initialValues={{
             newPassword: "",
