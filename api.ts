@@ -1,0 +1,1 @@
+export let BASE_URL: string = "http://192.168.1.46/labtest/elite-api-mcnaughtans/v1/"
