@@ -88,7 +88,7 @@ const PasswordChange: React.FC = ({}) => {
     },
   });
 
-  let url = `http://192.168.1.46/labtest/elite-api-mcnaughtans/v1/customers`;
+  let url = `http://192.168.1.46/labtest/elite-api-mcnaughtans/v1/password.recovery.set`;
   let form = new FormData();
 
   const changePasswordUser = () => {
@@ -147,7 +147,7 @@ const PasswordChange: React.FC = ({}) => {
               };
               mutate(passwordChange);
             };
-            onSubmit(data);
+            // onSubmit(data);
             changePasswordUser();
 
             // //maske async call
