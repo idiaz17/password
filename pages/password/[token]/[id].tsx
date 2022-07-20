@@ -9,7 +9,6 @@ import { Checkbox, FormControlLabel } from "@mui/material";
 import axios from "axios";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../api";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import Header from "../../../components/Header";
 
@@ -63,6 +62,8 @@ const PasswordChange: React.FC = ({}) => {
     confirmPassword: "",
     showPassword: false,
   });
+
+  console.log("url??", process.env.URL);
 
   const route = useRouter();
   console.log("route??", route);
