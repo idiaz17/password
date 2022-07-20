@@ -11,6 +11,7 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../api";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import Header from "../../../components/Header";
 
 const MyTextField: React.FC<FieldAttributes<{ isShown: boolean }>> = ({
   placeholder,
@@ -22,6 +23,7 @@ const MyTextField: React.FC<FieldAttributes<{ isShown: boolean }>> = ({
 
   return (
     <TextField
+      className="w-full"
       placeholder={placeholder}
       {...field}
       helperText={errorText}
@@ -79,7 +81,7 @@ const PasswordChange: React.FC = ({}) => {
       alert(message);
     },
     onError: () => {
-      alert("there was an error");
+      console.log("there was an error");
     },
     onSettled: () => {
       queryClient.invalidateQueries("update");
@@ -87,15 +89,16 @@ const PasswordChange: React.FC = ({}) => {
   });
 
   let url = `http://192.168.1.46/labtest/elite-api-mcnaughtans/v1/customers`;
-  const form = new FormData();
-  form.append("token", `${route.query.token}`);
-  form.append("id", `${route.query.id}`);
-  form.append("password", values.newPassword);
-  // updateFormData.append("password", values.newPassword);
+  let form = new FormData();
 
   const changePasswordUser = () => {
     fetch(url, {
       method: "POST",
+      headers: {
+        Authorization: "Bearer " + route.query.token,
+        "Accept-Language": "en-US,en;q=0.8",
+      },
+
       body: form,
     })
       .then((data) => data.json())
@@ -107,95 +110,110 @@ const PasswordChange: React.FC = ({}) => {
   };
 
   return (
-    <div className=" h-screen grid place-items-center m-auto ">
-      <Image
+    <>
+      <Header />
+
+      <div className="h-full flex flex-col items-center justify-center overflow-y-hidden  mt-20">
+        {/* <Image
         src={"/mcnaughtans.png"}
-        width={300}
+        // width={300}
+        width={400}
         height={100}
-        className="object-cover"
-      />
-      <Formik
-        initialValues={{
-          newPassword: "",
-          confirmPassword: "",
-          showPassword: false,
-        }}
-        validationSchema={toFormikValidationSchema(validationSchema)}
-        onSubmit={(data, { setSubmitting }) => {
-          setSubmitting(true);
+        // layout="responsive"
+        // height={100}
+        className=""
+        // className="object-cover h-80"
+      /> */}
+        <Formik
+          initialValues={{
+            newPassword: "",
+            confirmPassword: "",
+            showPassword: false,
+          }}
+          validationSchema={toFormikValidationSchema(validationSchema)}
+          onSubmit={(data, { setSubmitting }) => {
+            setValues({
+              newPassword: data.newPassword,
+              confirmPassword: data.confirmPassword,
+              showPassword: data.showPassword,
+            });
+            form.append("id", `${route.query.id}`);
+            form.append("password", data.newPassword);
+            setSubmitting(true);
 
-          setValues({
-            newPassword: data.newPassword,
-            confirmPassword: data.confirmPassword,
-            showPassword: data.showPassword,
-          });
-          // const onSubmit = (data: PasswordChange) => {
-          //   const passwordChange = {
-          //     ...data,
-          //   };
-          //   mutate(passwordChange);
-          // };
-          // onSubmit(data);
-          changePasswordUser();
+            const onSubmit = (data: PasswordChange) => {
+              const passwordChange = {
+                ...data,
+              };
+              mutate(passwordChange);
+            };
+            onSubmit(data);
+            changePasswordUser();
 
-          // //maske async call
-          // console.log("data??", data);
+            // //maske async call
+            // console.log("data??", data);
 
-          setSubmitting(false);
-        }}
-      >
-        {({
-          values,
-          errors,
-          isSubmitting,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-        }) => (
-          <Form>
-            <div
-              className="flex flex-col items-start space-y-4 max-w-3xl
+            setSubmitting(false);
+          }}
+        >
+          {({
+            values,
+            errors,
+            isSubmitting,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+          }) => (
+            <Form>
+              <div
+                className="max-w-2xl space-y-4 mx-4
+                
             "
-            >
-              <h2 className="font-bold text-xl text-center py-10">
-                Update your password
-              </h2>
-              <FormControlLabel
-                className="ml-auto"
-                control={<Checkbox checked={values.showPassword} />}
-                label={"Show Password"}
-                name="showPassword"
-                onChange={handleChange}
-              />
-
-              <label>New Password</label>
-              <MyTextField
-                isShown={values.showPassword}
-                name="newPassword"
-                type={values.showPassword ? "text" : "password"}
-              />
-              <label>Confirm New Password</label>
-              <MyTextField
-                isShown={values.showPassword}
-                name="confirmPassword"
-                type={values.showPassword ? "text" : "password"}
-              />
-
-              <Button
-                className="rounded-lg bg-[#00CCBB] p-4 text-white text-center mx-auto w-full font-semibold"
-                disabled={isSubmitting}
-                type="submit"
               >
-                Update Password
-              </Button>
-              {/* </div> */}
-            </div>
-            {/* <pre>{JSON.stringify(values, null, 2)}</pre>
+                <h2 className="font-bold text-2xl  text-center py-10">
+                  Create a New Password
+                </h2>
+                <FormControlLabel
+                  className="justify-end ml-[50%]"
+                  control={<Checkbox checked={values.showPassword} />}
+                  label={"Show Password"}
+                  name="showPassword"
+                  onChange={handleChange}
+                />
+
+                <div>
+                  <label>New Password</label>
+                  <MyTextField
+                    isShown={values.showPassword}
+                    name="newPassword"
+                    type={values.showPassword ? "text" : "password"}
+                  />
+                </div>
+                <div>
+                  <label>Confirm New Password</label>
+                  <MyTextField
+                    isShown={values.showPassword}
+                    name="confirmPassword"
+                    type={values.showPassword ? "text" : "password"}
+                  />
+                </div>
+
+                <Button
+                  className="rounded-lg bg-[#00CCBB] p-4 text-white text-center mx-auto w-full font-semibold"
+                  disabled={isSubmitting}
+                  type="submit"
+                >
+                  Update Password
+                </Button>
+                {/* </div> */}
+              </div>
+              {/* <pre>{JSON.stringify(values, null, 2)}</pre>
             <pre>{JSON.stringify(errors, null, 2)}</pre> */}
-          </Form>
-        )}
-      </Formik>
-    </div>
+            </Form>
+          )}
+        </Formik>
+      </div>
+    </>
   );
 };
 
