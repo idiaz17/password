@@ -11,6 +11,7 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../api";
 import { useRouter } from "next/router";
 import Header from "../../../components/Header";
+import Spinner from "../../../components/Loader";
 
 const MyTextField: React.FC<FieldAttributes<{ isShown: boolean }>> = ({
   placeholder,
@@ -57,30 +58,32 @@ interface PasswordChange {
 
 const PasswordChange: React.FC = ({}) => {
   const [passwordChanged, setPasswordChanged] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
   const [values, setValues] = React.useState<State>({
     newPassword: "",
     confirmPassword: "",
     showPassword: false,
   });
 
-  console.log("url??", process.env.URL);
-
   const route = useRouter();
-  console.log("route??", route);
 
   const queryClient = useQueryClient();
   const changePassword = async (data: PasswordChange) => {
-    const { data: response } = await axios.post(`${BASE_URL}login`, data, {
-      headers: { "Accept-Language": "en-US,en;q=0.8" },
-    });
+    const { data: response } = await axios.post(
+      `${BASE_URL}password.recovery.set`,
+      data,
+      {
+        headers: { "Accept-Language": "en-US,en;q=0.8" },
+      }
+    );
     return response.data;
   };
 
-  const { mutate, loading } = useMutation(changePassword, {
+  const { mutate } = useMutation(changePassword, {
     onSuccess: (data) => {
       console.log(data);
       const message = "success";
-      alert(message);
+      // alert(message);
     },
     onError: () => {
       console.log("there was an error");
@@ -91,23 +94,28 @@ const PasswordChange: React.FC = ({}) => {
   });
 
   React.useEffect(() => {
-    if (passwordChanged.data?.msg === "updated") {
-      route.push(`/changedPassword/${passwordChanged.data?.msg}`);
+    if (passwordChanged.result === "updated" && loading === false) {
+      route.push(`/changedPassword/${passwordChanged.result}`);
     } else {
       return;
     }
-  }, [passwordChanged]);
-  console.log(passwordChanged.data?.msg);
+  }, [passwordChanged, loading]);
+  console.log(passwordChanged);
 
   let url = `http://192.168.1.46/labtest/elite-api-mcnaughtans/v1/password.recovery.set`;
   let form = new FormData();
+  // form.append("id", `${route.query.id}`);
+  form.append("id", `18`);
 
   const changePasswordUser = () => {
+    setLoading(true);
     fetch(url, {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + route.query.token,
+        Authorization: "Bearer " + "46df018513b12e151d7957455c402e1f",
+        // Authorization: "Bearer " + route.query.token,
         "Accept-Language": "en-US,en;q=0.8",
+        // "Content-Type": "multipart/form-data",
       },
 
       body: form,
@@ -117,102 +125,110 @@ const PasswordChange: React.FC = ({}) => {
         setPasswordChanged(res);
       })
       .catch((err) => console.log(err));
+    setTimeout(() => {
+      setLoading(false);
+    }, 3000);
   };
+
+  console.log("loading??", loading);
 
   return (
     <>
       <Header />
+      <Spinner visible={loading} />
+      {!loading && (
+        <div className="h-full flex flex-col items-center justify-center overflow-y-hidden  mt-20">
+          <Formik
+            initialValues={{
+              newPassword: "",
+              confirmPassword: "",
+              showPassword: false,
+            }}
+            validationSchema={toFormikValidationSchema(validationSchema)}
+            onSubmit={(data, { setSubmitting }) => {
+              setValues({
+                newPassword: data.newPassword,
+                confirmPassword: data.confirmPassword,
+                showPassword: data.showPassword,
+              });
+              // form.append("id", `${route.query.id}`);
+              // // form.append("id", `18`);
+              form.append("password", data.newPassword);
+              setSubmitting(true);
 
-      <div className="h-full flex flex-col items-center justify-center overflow-y-hidden  mt-20">
-        <Formik
-          initialValues={{
-            newPassword: "",
-            confirmPassword: "",
-            showPassword: false,
-          }}
-          validationSchema={toFormikValidationSchema(validationSchema)}
-          onSubmit={(data, { setSubmitting }) => {
-            setValues({
-              newPassword: data.newPassword,
-              confirmPassword: data.confirmPassword,
-              showPassword: data.showPassword,
-            });
-            form.append("id", `${route.query.id}`);
-            form.append("password", data.newPassword);
-            setSubmitting(true);
-
-            const onSubmit = (data: PasswordChange) => {
-              const passwordChange = {
-                ...data,
+              const onSubmit = (data: PasswordChange) => {
+                const passwordChange = {
+                  ...data,
+                };
+                mutate(passwordChange);
               };
-              mutate(passwordChange);
-            };
-            // onSubmit(data);
-            changePasswordUser();
+              onSubmit(data);
+              changePasswordUser();
 
-            // //maske async call
-            // console.log("data??", data);
+              // //maske async call
+              // console.log("data??", data);
 
-            setSubmitting(false);
-          }}
-        >
-          {({
-            values,
-            errors,
-            isSubmitting,
-            handleChange,
-            handleBlur,
-            handleSubmit,
-          }) => (
-            <Form>
-              <div
-                className="max-w-2xl space-y-4 mx-4
+              setSubmitting(false);
+            }}
+          >
+            {({
+              values,
+              errors,
+              isSubmitting,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+            }) => (
+              <Form>
+                <div
+                  className="max-w-2xl space-y-4 mx-4
                 
             "
-              >
-                <h2 className="font-bold text-2xl  text-center py-10">
-                  Create a New Password
-                </h2>
-                <FormControlLabel
-                  className="justify-end ml-[50%]"
-                  control={<Checkbox checked={values.showPassword} />}
-                  label={"Show Password"}
-                  name="showPassword"
-                  onChange={handleChange}
-                />
-
-                <div>
-                  <label>New Password</label>
-                  <MyTextField
-                    isShown={values.showPassword}
-                    name="newPassword"
-                    type={values.showPassword ? "text" : "password"}
-                  />
-                </div>
-                <div>
-                  <label>Confirm New Password</label>
-                  <MyTextField
-                    isShown={values.showPassword}
-                    name="confirmPassword"
-                    type={values.showPassword ? "text" : "password"}
-                  />
-                </div>
-
-                <Button
-                  className="rounded-lg bg-[#00CCBB] p-4 text-white text-center mx-auto w-full font-semibold"
-                  disabled={isSubmitting}
-                  type="submit"
                 >
-                  Update Password
-                </Button>
-                {/* </div> */}
-              </div>
-              {/* <pre>{JSON.stringify(values, null, 2)}</pre>
+                  <h2 className="font-bold text-2xl  text-center py-10">
+                    Create a New Password
+                  </h2>
+                  <FormControlLabel
+                    className="justify-end ml-[50%]"
+                    control={<Checkbox checked={values.showPassword} />}
+                    label={"Show Password"}
+                    name="showPassword"
+                    onChange={handleChange}
+                  />
+
+                  <div>
+                    <label>New Password</label>
+                    <MyTextField
+                      isShown={values.showPassword}
+                      name="newPassword"
+                      type={values.showPassword ? "text" : "password"}
+                    />
+                  </div>
+                  <div>
+                    <label>Confirm New Password</label>
+                    <MyTextField
+                      isShown={values.showPassword}
+                      name="confirmPassword"
+                      type={values.showPassword ? "text" : "password"}
+                    />
+                  </div>
+
+                  <Button
+                    className="rounded-lg bg-[#00CCBB] p-4 text-white text-center mx-auto w-full font-semibold hover:bg-[#00CCBB]"
+                    disabled={isSubmitting}
+                    type="submit"
+                  >
+                    Update Password
+                  </Button>
+                  {/* </div> */}
+                </div>
+                {/* <pre>{JSON.stringify(values, null, 2)}</pre>
             <pre>{JSON.stringify(errors, null, 2)}</pre> */}
-            </Form>
-          )}
-        </Formik>
-      </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      )}
     </>
   );
 };
