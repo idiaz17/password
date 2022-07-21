@@ -96,24 +96,24 @@ const PasswordChange: React.FC = ({}) => {
   React.useEffect(() => {
     if (passwordChanged.result === "updated" && loading === false) {
       route.push(`/changedPassword/${passwordChanged.result}`);
-    } else {
-      return;
+    } else if (passwordChanged.status == "error" && loading === false) {
+      route.push(`/changedPassword/${passwordChanged.result.error_id}`);
     }
   }, [passwordChanged, loading]);
   console.log(passwordChanged);
 
   let url = `http://192.168.1.46/labtest/elite-api-mcnaughtans/v1/password.recovery.set`;
   let form = new FormData();
-  // form.append("id", `${route.query.id}`);
-  form.append("id", `18`);
+  form.append("id", `${route.query.id}`);
+
+  console.log("route??", route);
 
   const changePasswordUser = () => {
     setLoading(true);
     fetch(url, {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + "46df018513b12e151d7957455c402e1f",
-        // Authorization: "Bearer " + route.query.token,
+        Authorization: "Bearer " + route.query.token,
         "Accept-Language": "en-US,en;q=0.8",
         // "Content-Type": "multipart/form-data",
       },
@@ -151,8 +151,6 @@ const PasswordChange: React.FC = ({}) => {
                 confirmPassword: data.confirmPassword,
                 showPassword: data.showPassword,
               });
-              // form.append("id", `${route.query.id}`);
-              // // form.append("id", `18`);
               form.append("password", data.newPassword);
               setSubmitting(true);
 
@@ -162,7 +160,7 @@ const PasswordChange: React.FC = ({}) => {
                 };
                 mutate(passwordChange);
               };
-              onSubmit(data);
+              // onSubmit(data);
               changePasswordUser();
 
               // //maske async call
