@@ -23,7 +23,7 @@ const MyTextField: React.FC<FieldAttributes<{ isShown: boolean }>> = ({
 
   return (
     <TextField
-      className="w-full"
+      className="w-full shadow"
       placeholder={placeholder}
       {...field}
       helperText={errorText}
@@ -138,6 +138,9 @@ const PasswordChange: React.FC = ({}) => {
       <Spinner visible={loading} />
       {!loading && (
         <div className="h-full flex flex-col items-center justify-center overflow-y-hidden  mt-20">
+          <h1 className="font-sans font-semibold text-2xl mr-1/3 text-[#25292E]">
+            Change Password to McNaughtans
+          </h1>
           <Formik
             initialValues={{
               newPassword: "",
@@ -179,23 +182,18 @@ const PasswordChange: React.FC = ({}) => {
             }) => (
               <Form>
                 <div
-                  className="max-w-2xl space-y-4 mx-4
+                  className="max-w-7xl space-y-4 mx-4 px-10 py-4 rounded-lg border shadow-xl m-10
                 
             "
                 >
-                  <h2 className="font-bold text-2xl  text-center py-10">
+                  {/* <h1 className="font-bold text-2xl  py-10 font-sans">
                     Create a New Password
-                  </h2>
-                  <FormControlLabel
-                    className="justify-end ml-[50%]"
-                    control={<Checkbox checked={values.showPassword} />}
-                    label={"Show Password"}
-                    name="showPassword"
-                    onChange={handleChange}
-                  />
+                  </h1> */}
 
                   <div>
-                    <label>New Password</label>
+                    <h1 className="font-sans text-[#25292E] font-normal mb-2">
+                      New Password
+                    </h1>
                     <MyTextField
                       isShown={values.showPassword}
                       name="newPassword"
@@ -203,23 +201,35 @@ const PasswordChange: React.FC = ({}) => {
                     />
                   </div>
                   <div>
-                    <label>Confirm New Password</label>
+                    <h1 className="font-sans text-[#25292E] font-normal mb-2">
+                      Confirm New Password
+                    </h1>
                     <MyTextField
                       isShown={values.showPassword}
                       name="confirmPassword"
                       type={values.showPassword ? "text" : "password"}
                     />
                   </div>
+                  <FormControlLabel
+                    className=""
+                    control={<Checkbox checked={values.showPassword} />}
+                    label={"Show Password"}
+                    name="showPassword"
+                    onChange={handleChange}
+                  />
 
                   <Button
-                    className="rounded-lg bg-[#00CCBB] p-4 text-white text-center mx-auto w-full font-semibold hover:bg-[#00CCBB]"
+                    className="rounded-lg bg-[#25292E] p-4 text-white text-center mx-auto w-full   "
                     disabled={isSubmitting}
                     type="submit"
                   >
-                    Update Password
+                    <h1 className="font-sans font-semibold text-white">
+                      Update Password
+                    </h1>
                   </Button>
-                  {/* </div> */}
                 </div>
+
+                {/* </div> */}
                 {/* <pre>{JSON.stringify(values, null, 2)}</pre>
             <pre>{JSON.stringify(errors, null, 2)}</pre> */}
               </Form>
